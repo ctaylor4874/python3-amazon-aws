@@ -45,6 +45,9 @@ class BaseElementWrapper(object):
         if not re.findall(br'\sxmlns=\".*?\"', s):
             warnings.warn('Document is missing a namespace. Parsers may not behave as expected.', category=XMLWarning)
 
+    def to_string(self):
+        return etree.tostring(self.element).decode('utf-8')
+
     @classmethod
     def from_string(cls, xml_string, *args, **kwargs):
         tree = etree.fromstring(xml_string)
@@ -234,6 +237,66 @@ class OfferListing(BaseElementWrapper):
     # ToDo: IsEligibleForPrime
 
 
+class Image(BaseElementWrapper):
+    namespaces = ITEM_SEARCH_NAMESPACES
+
+    @property
+    @first_element
+    def url(self):
+        return self.xpath('./a:URL/text()')
+
+    @property
+    @first_element
+    def height(self):
+        return self.xpath('./a:Height/text()')
+
+    @property
+    @first_element
+    def width(self):
+        return self.xpath('./a:Width/text()')
+
+
+class ImageSet(BaseElementWrapper):
+
+    namespaces = ITEM_SEARCH_NAMESPACES
+
+    @property
+    @load_into(Image)
+    @first_element
+    def swatch_image(self):
+        return self.xpath('./a:SwatchImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def small_image(self):
+        return self.xpath('./a:SmallImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def thumbnail_image(self):
+        return self.xpath('./a:ThumbnailImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def tiny_image(self):
+        return self.xpath('./a:TinyImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def medium_image(self):
+        return self.xpath('./a:MediumImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def large_image(self):
+        return self.xpath('./a:LargeImage')
+
+
 class Offer(BaseElementWrapper):
     """
     Offer has been condensed to "flatten" the xml. Amazon still retains the old layout even though they
@@ -407,6 +470,37 @@ class Item(BaseElementWrapper):
     @first_element
     def offer_summary(self):
         return self.xpath('./a:OfferSummary')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def small_image(self):
+        return self.xpath('./a:SmallImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def medium_image(self):
+        return self.xpath('./a:MediumImage')
+
+    @property
+    @load_into(Image)
+    @first_element
+    def large_image(self):
+        return self.xpath('./a:LargeImage')
+
+    @load_into(ImageSet)
+    @first_element
+    def image_set(self, category):
+        return self.xpath('./a:ImageSets/a:ImageSet[@Category="{}"]'.format(category))
+
+    @property
+    def image_set_variant(self):
+        return self.image_set('variant')
+
+    @property
+    def image_set_primary(self):
+        return self.image_set('primary')
 
     def __unicode__(self):
         return self.asin

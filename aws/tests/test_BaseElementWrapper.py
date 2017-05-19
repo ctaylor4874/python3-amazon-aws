@@ -17,6 +17,7 @@ class TestBaseElementWrapper(TestCase):
         parser = BaseElementWrapper.from_string(xml_string)
         self.assertTrue(parser)
         self.assertIsNotNone(parser.xpath('./text()'))
+        self.assertEqual(parser.to_string(), xml_string)
 
 
 class TestParseBool(TestCase):
