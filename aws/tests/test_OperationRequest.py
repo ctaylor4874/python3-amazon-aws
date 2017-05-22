@@ -4,7 +4,6 @@ from aws.parsers.base import OperationRequest
 
 
 class TestOperationRequest(TestCase):
-
     body = """
     <OperationRequest xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
         <HTTPHeaders>
@@ -41,3 +40,42 @@ class TestOperationRequest(TestCase):
 
     def test_request_processing_time(self):
         self.assertEqual(self.parser.request_processing_time, '0.123')
+
+
+class TestOperationRequestItemLookup(TestCase):
+    body = """
+    <OperationRequest xmlns="http://webservices.amazon.com/AWSECommerceService/2011-08-01">
+        <HTTPHeaders>
+            <Header></Header>
+        </HTTPHeaders>
+        <RequestId>request-id</RequestId>
+        <Arguments>
+            <Argument Name="AWSAccessKeyId" Value="aws-access-key"></Argument>
+            <Argument Name="AssociateTag" Value="associate-tag"></Argument>
+            <Argument Name="Condition" Value="New"></Argument>
+            <Argument Name="IdType" Value="ASIN"></Argument>
+            <Argument Name="ItemId" Value="asin"></Argument>
+            <Argument Name="Operation" Value="ItemLookup"></Argument>
+            <Argument Name="ResponseGroup" Value="Images,ItemAttributes,OfferFull,SalesRank"></Argument>
+            <Argument Name="Service" Value="AWSECommerceService"></Argument>
+            <Argument Name="Timestamp" Value="2017-05-22T14:06:55.000Z"></Argument>
+            <Argument Name="Signature" Value="signature"></Argument>
+        </Arguments>
+        <RequestProcessingTime>0.0212</RequestProcessingTime>
+    </OperationRequest>
+    """
+
+    def setUp(self):
+        self.parser = OperationRequest.from_string(self.body)
+
+    def test_headers(self):
+        self.assertEqual(len(self.parser.http_headers), 1)
+
+    def test_request_id(self):
+        self.assertEqual(self.parser.request_id, 'request-id')
+
+    def test_arguments(self):
+        self.assertEqual(len(self.parser.arguments), 10)
+
+    def test_request_processing_time(self):
+        self.assertEqual(self.parser.request_processing_time, '0.0212')

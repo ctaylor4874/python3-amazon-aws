@@ -2,13 +2,9 @@ from __future__ import unicode_literals
 
 from collections import namedtuple
 
-from .base import BaseElementWrapper, OperationRequest, Items, Bin
-from .helpers import first_element, parse_bool, load_into
-
-
-ITEM_SEARCH_NAMESPACES = {
-    'a': 'http://webservices.amazon.com/AWSECommerceService/2011-08-01'
-}
+from .base import BaseElementWrapper, Bin
+from .helpers import load_into
+from .api_response import ApiResponse
 
 
 class SearchBinSet(object):
@@ -21,21 +17,7 @@ class SearchBinSet(object):
     PERCENTAGE_OFF = 'PercentageOff'
 
 
-class ItemSearchResponse(BaseElementWrapper):
-    namespaces = ITEM_SEARCH_NAMESPACES
-
-    @property
-    @load_into(OperationRequest)
-    @first_element
-    def operation_request(self):
-        return self.xpath('./a:OperationRequest')
-
-    @property
-    @load_into(Items)
-    @first_element
-    def items(self):
-        return self.xpath('./a:Items')
-
+class ItemSearchResponse(ApiResponse, BaseElementWrapper):
     @load_into(Bin)
     def search_bins(self, narrow_by=None):
         if narrow_by is not None:

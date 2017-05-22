@@ -112,8 +112,8 @@ class AWS(object):
         string_to_sign = "GET\n{endpoint}\n/onca/xml\n{params}".format(endpoint=self.marketplace,
                                                                        params=canonical_string)
         signature = base64.b64encode(
-            hmac.new(bytes(self.secret_key, encoding='ascii'), bytes(string_to_sign, encoding='ascii'),
-                     hashlib.sha256).digest())
+            hmac.new(bytes(self.secret_key, encoding='utf-8'), string_to_sign.encode(encoding='utf-8'),
+                     digestmod=hashlib.sha256).digest())
         encoded_signature = parse.quote(signature)
         return encoded_signature
 
